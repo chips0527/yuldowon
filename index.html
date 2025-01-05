@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>율도원 기숙사 배정</title>
+    <style>
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 30px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    text-align: center;
+    z-index: 1000;
+    max-width: 400px;
+    width: 90%;
+}
+.popup h2 {
+    color: #6a0dad;
+    margin-bottom: 20px;
+}
+.popup p {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 20px;
+}
+.popup button {
+    background-color: #6a0dad;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+.popup button:hover {
+    background-color: #8a2be2;
+}
+#overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-image: url('https://github.com/chips0527/yuldowon/blob/main/%E1%84%8B%E1%85%B5%E1%86%B6%E1%84%8B%E1%85%A5%E1%84%87%E1%85%A5%E1%84%85%E1%85%B5%E1%86%AB%E1%84%87%E1%85%A1%E1%86%B7%E1%84%8B%E1%85%B4%E1%84%89%E1%85%A5%E1%86%B7%20%E1%84%87%E1%85%A2%E1%84%80%E1%85%A7%E1%86%BC.png?raw=true'); /* 이미지 URL */
+            background-size: cover;
+            background-position: center center;
+        }
+        .container {
+            text-align: center;
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            color: #6a0dad; /* 보라색 포인트 */
+            margin-bottom: 20px;
+        }
+        .input-field {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 80%;
+            font-size: 16px;
+        }
+        .submit-button {
+            background-color: #6a0dad; /* 보라색 포인트 */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .submit-button:hover {
+            background-color: #8a2be2; /* 밝은 보라색 */
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .dorm-name {
+            font-size: 22px;
+            margin-top: 10px;
+        }
+        .dorm-description {
+            font-size: 16px;
+            color: #777;
+            white-space: pre-line;
+        }
+        .link-button {
+            background-color: #008CBA; /* 파란색 */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .link-button:hover {
+            background-color: #005f73; /* 어두운 파란색 */
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div id="overlay" style="display: none;"></div>
+<div class="popup" id="popup" style="display: none;">
+    <h2>율도원에 오신 것을 환영합니다!</h2>
+    <p>본 배정은 예디버스 공식 배정이 아닌<br>팬메이드임을 인지하고 계십니까?</p>
+    <button onclick="closePopup()">예</button>
+</div>
+
+<div class="title-image-container">
+    <img src="https://postfiles.pstatic.net/MjAyNTAxMDVfMTI2/MDAxNzM2MDgxNTYwODM5.Lv3NrMrGqy8kVuOKZdOSoe13u7OQSHEhbkXpBi_MtUUg._5CAdXMP7BOy5z0aU1eQHnsoQlZByXv-Zb7HfV4WOZIg.PNG/%EC%9E%83%EC%96%B4%EB%B2%84%EB%A6%B0%EB%B0%A4%EC%9D%98%EC%84%AC1.png?type=w773" alt="율도원 타이틀" class="title-image">
+</div>
+    <div class="container">
+        <h1>율도원 기숙사 배정</h1>
+        <form id="dormForm">
+            <input type="text" id="name" class="input-field" placeholder="이름을 입력하세요" required><br>
+            <input type="text" id="city" class="input-field" placeholder="출신 도시를 입력하세요" required><br>
+            <input type="text" id="ilgan" class="input-field" placeholder="일간을 입력하세요" required><br>
+            <div class="button-container">
+                <a href="https://pro.forceteller.com/profile/edit" target="_blank">
+                    <button type="button" class="link-button">나의 일간 확인하기</button>
+                </a>
+                <button type="submit" class="submit-button">기숙사 배정 받기</button>
+            </div>
+        </form>
+        
+        <div id="result" class="result"></div>
+    </div>
+
+    <style>
+
+.title-image-container {
+    position: absolute;
+    top: 13%; /* 빨간 원 위치 조정 */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.title-image {
+    width: 400px; /* 이미지 크기 조절 */
+    height: auto; /* 비율 유지 */
+}
+
+    /* 기존 스타일 유지 */
+    .container {
+        text-align: center;
+        background-color: white;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        width: 100%;
+    }
+    /* 배경이미지 및 텍스트 스타일 유지 */
+    .submit-button {
+        background-color: #6a0dad; /* 보라색 포인트 */
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 20px;
+    }
+    .submit-button:hover {
+        background-color: #8a2be2; /* 밝은 보라색 */
+    }
+
+    .result {
+        margin-top: 20px;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .dorm-name {
+        font-size: 22px;
+        margin-top: 10px;
+    }
+
+    .dorm-description {
+        font-size: 16px;
+        color: #777;
+        white-space: pre-line;
+    }
+
+    /* 각 기숙사별 색 */
+    .청양관 { color: #1E90FF; }
+    .적초관 { color: #FF4500; }
+    .황접관 { color: #DAA520; }
+    .백작관 { color: #A9A9A9; }
+    .흑상관 { color: #000000; }
+</style>
+
+<script>
+// 페이지 로드 시 팝업 표시
+window.onload = function() {
+    document.getElementById('popup').style.display = 'block';
+    document.getElementById('overlay').style.display = 'block';
+};
+
+// 팝업 닫기 함수
+function closePopup() {
+    document.getElementById('popup').style.display = 'none';
+    document.getElementById('overlay').style.display = 'none';
+}
+
+    document.getElementById('dormForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const name = document.getElementById('name').value;
+        const city = document.getElementById('city').value;
+        const ilgan = document.getElementById('ilgan').value.trim();
+
+        let dormName = '';
+        let description = '';
+        let dormClass = '';
+
+        if (['갑', '을'].includes(ilgan[0])) {
+            dormName = "청양관";
+            description = "상징 동물 : 푸른 산양\n상징 : 나무, 포용\n상징 색 : 푸른색\n기숙사 이념: 박애(인仁)\n창립 시기 : 태종-세종 시기\n창립자 : 동아시아의 유랑시인이자 마법역사학자인 <양 화명>";
+            dormClass = '청양관';
+        } else if (['병', '정'].includes(ilgan[0])) {
+            dormName = "적초관";
+            description = "상징 동물 : 붉은 담비\n상징 : 불, 열정\n상징 색 : 붉은색\n기숙사 이념: 힘(예禮)\n창립 시기 : 세종시기\n창립자 : 4군 6진 개척기여자 <돈 지담> 장군";
+            dormClass = '적초관';
+        } else if (['무', '기'].includes(ilgan[0])) {
+            dormName = "황접관";
+            description = "상징 동물 : 황색 나비\n상징 : 흙, 인내\n상징 색 : 황색\n기숙사 이념: 믿음(신信)\n창립 시기 : 세종시기\n창립자 : 대검무당, 의관인 <사비 화>";
+            dormClass = '황접관';
+        } else if (['경', '신'].includes(ilgan[0])) {
+            dormName = "백작관";
+            description = "상징 동물 : 하얀 까치\n상징 : 금속, 비상\n상징 색 : 백색\n기숙사 이념: 이상(의義)\n창립 시기 : 세종시기\n창립자 : 백제 마장술 전승자 <김선화>";
+            dormClass = '백작관';
+        } else if (['임', '계'].includes(ilgan[0])) {
+            dormName = "흑상관";
+            description = "상징 동물 : 검은 상괭이\n상징 : 물, 소통\n상징 색 : 흑색\n기숙사 이념: 지혜(지智)\n창립 시기 : 세종시기\n창립자 : 천문학자 겸 예언자 <석 호연겸>";
+            dormClass = '흑상관';
+        } else {
+            dormName = "알 수 없음";
+            description = "올바른 일간 첫 글자를 입력해 주세요.";
+            dormClass = '';
+        }
+
+        document.getElementById('result').innerHTML = `
+            <div class="dorm-name ${dormClass}">축하합니다. ${name}님의 기숙사는 ${dormName}입니다!</div>
+            <p class="dorm-description">${description}</p>
+        `;
+    });
+</script>
+
+</body>
+</html>
