@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>율도원 기숙사 배정</title>
+    <style>
+@font-face {
+      font-family: 'ChosunCentennial';
+      src: url('https://gcore.jsdelivr.net/gh/projectnoonnu/noonfonts_2206-02@1.0/ChosunCentennial.woff2') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+  }
+
+/* popup */
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 30px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    text-align: center;
+    z-index: 1000;
+    max-width: 400px;
+    width: 90%;
+}
+.popup h2 { color: #6a0dad; margin-bottom: 20px; }
+.popup p { font-size: 16px; color: #555; margin-bottom: 20px; }
+.popup button { background-color: #6a0dad; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;}
+.popup button:hover { background-color: #8a2be2; }
+#overlay { position: fixed; top: 0; left: 0; width:100%; height:100%; background-color: rgba(0,0,0,0.5); z-index: 999; display:none; }
+
+body {
+    font-family: 'ChosunCentennial', sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-image: url('https://github.com/chips0527/yuldowon/raw/main/lostislandBG.png');
+    background-size: cover;
+    background-position: center center;
+}
+
+.container {
+    text-align: center;
+    background-color: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    max-width: 600px;
+    width: 100%;
+}
+h1 { color: #6a0dad; margin-bottom: 20px; }
+.input-field { margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px; width: 80%; font-size: 16px; }
+.submit-button { background-color: #6a0dad; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor:pointer; font-size:16px; margin-top:20px; }
+.submit-button:hover { background-color:#8a2be2; }
+form .button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+.result {
+  margin-top: 20px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center; /* 결과 중앙 정렬 */
+}
+.dorm-name { font-size: 22px; margin-top: 10px; }
+.dorm-description { font-size: 16px; color: #777; white-space: pre-line; }
+
+/* title image */
+.title-image-container { position: absolute; top: 13%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 2; }
+.title-image { width: 400px; height: auto; }
+
+/* dorm colors */
+.청양관 { color: #1E90FF; }
+.적초관 { color: #FF4500; }
+.황접관 { color: #DAA520; }
+.백작관 { color: #A9A9A9; }
+.흑상관 { color: #000000; }
+
+/* button container */
+.button-container { display:flex; justify-content:space-between; gap:10px; margin-top:10px; }
+.link-button { background-color: #008CBA; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+.link-button:hover { background-color: #005f73; }
+
+    </style>
+</head>
+<body>
+<div id="overlay" style="display: none;"></div>
+<div class="popup" id="popup" style="display: none;">
+    <h2>율도원에 오신 것을 환영합니다!</h2>
+    <p>본 배정은 예디버스 공식 배정이 아닌<br>팬메이드임을 인지하고 계십니까?</p>
+    <button onclick="closePopup()">예</button>
+</div>
+
+<div class="title-image-container">
+    <img src="https://github.com/chips0527/yuldowon/raw/main/lostisland.png" class="title-image" alt="율도원">
+</div>
+
+<div class="container" role="main">
+  <h1>율도원 기숙사 배정</h1>
+  <form id="dormForm">
+    <input type="text" id="name" class="input-field" placeholder="이름을 입력하세요" required><br>
+    <input type="text" id="city" class="input-field" placeholder="출신 도시를 입력하세요" required><br>
+    <input type="date" id="birthdate" class="input-field" required><br>
+    <div class="button-container">
+      <button type="submit" class="submit-button">기숙사 배정 받기</button>
+    </div>
+  </form>
+  <div id="result" class="result" aria-live="polite"></div>
+</div>
+
+<script>
+// 팝업 처리
+window.addEventListener('load', () => {
+    document.getElementById('popup').style.display = 'block';
+    document.getElementById('overlay').style.display = 'block';
+});
+function closePopup() {
+    document.getElementById('popup').style.display = 'none';
+    document.getElementById('overlay').style.display = 'none';
+}
+
+/* JDN -> 일간(한글 간) 계산 */
+function jdnFromGregorian(y, m, d) {
+    const a = Math.floor((14 - m) / 12);
+    const y2 = y + 4800 - a;
+    const m2 = m + 12 * a - 3;
+    return d + Math.floor((153 * m2 + 2) / 5) + 365 * y2 + Math.floor(y2 / 4)
+           - Math.floor(y2 / 100) + Math.floor(y2 / 400) - 32045;
+}
+const stemHangul = ['갑','을','병','정','무','기','경','신','임','계'];
+function getDayStemHangul(y,m,d) {
+    const jdn = jdnFromGregorian(y,m,d);
+    const idx0 = ((jdn - 11) % 60 + 60) % 60; // 0 -> 甲子
+    return stemHangul[idx0 % 10];
+}
+
+/* 천간 -> 기숙사 매핑 (네 기존 로직 유지) */
+const stemToDorm = {
+    '갑': { name: "청양관", cls: '청양관' },
+    '을': { name: "청양관", cls: '청양관' },
+    '병': { name: "적초관", cls: '적초관' },
+    '정': { name: "적초관", cls: '적초관' },
+    '무': { name: "황접관", cls: '황접관' },
+    '기': { name: "황접관", cls: '황접관' },
+    '경': { name: "백작관", cls: '백작관' },
+    '신': { name: "백작관", cls: '백작관' },
+    '임': { name: "흑상관", cls: '흑상관' },
+    '계': { name: "흑상관", cls: '흑상관' }
+};
+
+const descriptions = {
+    "청양관": "상징 동물 : 푸른 산양🐐\n상징 : 나무, 포용\n상징 색 : 푸른색\n기숙사 이념: 박애(인仁)\n창립 시기 : 태종-세종 시기\n창립자 : 동아시아의 유랑시인이자 마법역사학자인 <양 화명>",
+    "적초관": "상징 동물 : 붉은 담비🦊\n상징 : 불, 열정\n상징 색 : 붉은색\n기숙사 이념: 힘(예禮)\n창립 시기 : 세종시기\n창립자 : 4군 6진 개척기여자 <돈 지담> 장군",
+    "황접관": "상징 동물 : 황색 나비🦋\n상징 : 흙, 인내\n상징 색 : 황색\n기숙사 이념: 믿음(신信)\n창립 시기 : 세종시기\n창립자 : 대검무당, 의관인 <사비 화>",
+    "백작관": "상징 동물 : 하얀 까치🕊\n상징 : 금속, 비상\n상징 색 : 백색\n기숙사 이념: 이상(의義)\n창립 시기 : 세종시기\n창립자 : 백제 마장술 전승자 <김선화>",
+    "흑상관": "상징 동물 : 검은 상괭이🐬\n상징 : 물, 소통\n상징 색 : 흑색\n기숙사 이념: 지혜(지智)\n창립 시기 : 세종시기\n창립자 : 천문학자 겸 예언자 <석 호연겸>"
+};
+
+/* 폼 제출 처리: 생년월일 -> 일간 -> 매핑 -> 결과 표시 */
+document.getElementById('dormForm').addEventListener('submit', function(e){
+    e.preventDefault();
+
+    const name = (document.getElementById('name').value || '').trim() || '여행자';
+    // 입력된 출신지는 유지하되 결과엔 표시하지 않음 per 요청
+    // const city = (document.getElementById('city').value || '').trim();
+    const birthdate = document.getElementById('birthdate').value;
+
+    if (!birthdate) {
+        alert('생년월일을 입력해 주세요.');
+        return;
+    }
+
+    const parts = birthdate.split('-').map(v => parseInt(v,10));
+    const [yy, mm, dd] = parts;
+    if (!yy || !mm || !dd) {
+        alert('정확한 생년월일을 입력해 주세요.');
+        return;
+    }
+
+    const stem = getDayStemHangul(yy, mm, dd); // 일간(갑 등)
+    const dormInfo = stemToDorm[stem] || { name: "미지정", cls: '' };
+    const dormName = dormInfo.name;
+    const dormClass = dormInfo.cls;
+    const description = descriptions[dormName] || "기숙사 정보 없음.";
+    const colorMap = { "청양관":"#1E90FF", "적초관":"#FF4500", "황접관":"#DAA520", "백작관":"#A9A9A9", "흑상관":"#000000" };
+    const color = colorMap[dormName] || "#000";
+
+    // 결과 표시: 계산된 일간과 출신지 표시는 제거
+    const resultEl = document.getElementById('result');
+    resultEl.innerHTML = `
+        <div class="dorm-name ${dormClass}" style="color:${color};">${name}님의 기숙사는 ${dormName}입니다!</p></div>
+        <div class="dorm-description">${description}</div>
+    `;
+
+    // UX: 팝업 닫기
+    try { closePopup(); } catch(e){}
+});
+</script>
+
+</body>
+</html>
